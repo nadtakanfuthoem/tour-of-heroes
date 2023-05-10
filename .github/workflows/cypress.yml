@@ -8,23 +8,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         
+        
       - name: Set up node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 16 # This allow Github Workflow running on node 16
 
-      - run: npm ci
+      - run: npm ci # clean install from package-lock.json
       
       - name: Cypress run
         uses: cypress-io/github-action@v5.6.2
         with:
-          install: true
-          build: npm run build
-          start: npm start
-          wait-on: 'http://localhost:4200'
-          record: true
+          build: npm run build # build appplication
+          start: npm start # start application
+          wait-on: 'http://localhost:4200' # wait until an app start
+          record: true # this will record on cypress cloud
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}} 
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
 
