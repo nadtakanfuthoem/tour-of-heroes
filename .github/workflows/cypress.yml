@@ -23,7 +23,6 @@ jobs:
           wait-on: 'http://localhost:4200' # wait until an app start
           record: true # this will record on cypress cloud
         env:
-#           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}} 
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
 
