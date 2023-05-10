@@ -8,7 +8,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         
-        
       - name: Set up node
         uses: actions/setup-node@v3
         with:
@@ -24,7 +23,7 @@ jobs:
           wait-on: 'http://localhost:4200' # wait until an app start
           record: true # this will record on cypress cloud
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}} 
+#           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}} 
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
 
