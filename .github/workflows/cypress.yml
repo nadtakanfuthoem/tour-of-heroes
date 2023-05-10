@@ -22,4 +22,9 @@ jobs:
           build: npm run build
           start: npm start
           wait-on: 'http://localhost:4200'
+          record: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          CYPRESS_RECORD_KEY: ${{ secrets.dashboardRecordKey }}
+
 
