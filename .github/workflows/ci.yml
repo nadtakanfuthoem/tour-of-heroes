@@ -53,12 +53,11 @@ jobs:
       - name: Print Node version 
         run: node -v
       
-      - name: Save build folder
-        uses: actions/upload-artifact@v3
+      - name: Download the build folder
+        uses: actions/download-artifact@v3
         with:
           name: build
-          if-no-files-found: error
-          path: dist
+          path: build
       
       - name: Cypress run
         # *best practices with specific version to mitigate unforeseen breaks
