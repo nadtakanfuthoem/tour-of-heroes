@@ -7,13 +7,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          # check out all commits to get accurate created date
+          fetch-depth: 0
         
-      - name: Set up node
+      - name: Setup node version
         uses: actions/setup-node@v3
         with:
           node-version: 16 # This allow Github Workflow running on node 16
 
-#       - run: npm ci # clean install from package-lock.json
+      - name: Print Node version 
+        run: node -v
       
       - name: Cypress run
         uses: cypress-io/github-action@v5.6.2
@@ -24,5 +28,7 @@ jobs:
           record: true # this will record on cypress cloud
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
