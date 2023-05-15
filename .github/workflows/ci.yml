@@ -19,12 +19,26 @@ jobs:
       - name: Print Node version 
         run: node -v
       
+      - name: Cypress install
+        uses: cypress-io/github-action@vv5.6.2 
+        with:
+          # Disable running of tests within install job
+          runTests: false
+          # build appplication
+          build: npm run build
+      
+      - name: Save build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          if-no-files-found: error
+          path: dist
+      
       - name: Cypress run
         # *best practices with specific version to mitigate unforeseen breaks
         uses: cypress-io/github-action@v5.6.2 
         with:
-          # build appplication
-          build: npm run build 
+          install: false
           # start server
           start: npm start 
           # wait until an app start, quote the url to be safe against YML parsing surprises
