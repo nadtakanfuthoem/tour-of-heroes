@@ -63,7 +63,6 @@ jobs:
         # *best practices with specific version to mitigate unforeseen breaks
         uses: cypress-io/github-action@v5.6.2 
         with:
-          install: false
           # start server
           start: npm start 
           # wait until an app start, quote the url to be safe against YML parsing surprises
