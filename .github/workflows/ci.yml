@@ -33,8 +33,8 @@ jobs:
           start: npm start 
           # wait until an app start, quote the url to be safe against YML parsing surprises
           wait-on: 'http://localhost:4200' 
-          # wait for 1 minutes for the server to respond, default is 60 seconds
-          wait-on-timeout: 60
+          # wait for 2 minutes for the server to respond
+          wait-on-timeout: 120
           # record test results on Cypress Cloud
           record: true 
           # use component testing
