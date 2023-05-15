@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 16 # This allow Github Workflow running on node 16
 
-      - run: npm ci # clean install from package-lock.json
+#       - run: npm ci # clean install from package-lock.json
       
       - name: Cypress run
         uses: cypress-io/github-action@v5.6.2
