@@ -26,6 +26,13 @@ jobs:
           runTests: false
           # build appplication
           build: npm run build
+      
+      - name: Save build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
           
   cypress-run:
     name: Cypress run
