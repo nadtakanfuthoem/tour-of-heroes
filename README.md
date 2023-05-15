@@ -7,7 +7,8 @@ Steps:
 
 Documents:
 - Installing Cypress: https://docs.cypress.io/guides/getting-started/installing-cypress
-- Github Action Document: https://docs.cypress.io/guides/continuous-integration/github-actions
+- Cypress Github Action Document: https://docs.cypress.io/guides/continuous-integration/github-actions
+- Cypress Github Action Repo: https://github.com/cypress-io/github-action
 - Online dashboard: https://cloud.cypress.io/
 - Setup node: https://github.com/actions/setup-node
 - Example Cypress: https://github.com/bahmutov/cypress-examples
