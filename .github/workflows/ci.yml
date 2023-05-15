@@ -1,8 +1,8 @@
 name: Cypress Tests
 on: [push]
 jobs:
-  cypress-run:
-    name: Cypress run
+  cypress-install:
+    name: Cypress Install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,6 +26,24 @@ jobs:
           runTests: false
           # build appplication
           build: npm run build
+          
+  cypress-run:
+    name: Cypress run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # check out all commits to get accurate created date
+          fetch-depth: 0
+        
+      - name: Setup node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # This allow Github Workflow running on node 16
+
+      - name: Print Node version 
+        run: node -v
       
       - name: Save build folder
         uses: actions/upload-artifact@v3
@@ -68,3 +86,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # pass the project ID from the secrets through environment variable
           # CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          
