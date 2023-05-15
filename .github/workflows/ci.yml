@@ -38,7 +38,7 @@ jobs:
           # record test results on Cypress Cloud
           record: true 
           # use component testing
-          component: true 
+          # component: true 
           # specify the browser, default is electron browser. Options: chrome, firefox, edge, electron
           browser: chrome
           # Tag recordings, You can pass multiple tags using commas like tag: node-18,nightly,staging.
