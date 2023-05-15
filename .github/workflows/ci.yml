@@ -39,14 +39,14 @@ jobs:
           auto-cancel-after-failures: 2
           #  silence any Cypress specific output from stdout
           quiet: true
-          # specify configuration values with config parameter
-          config: pageLoadTimeout=100000,baseUrl=http://localhost:3000
           # custom build id
           ci-build-id: '${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}'
           # Tag recordings, You can pass multiple tags using commas like tag: node-18,nightly,staging.
           # tag: node-${{ matrix.node }}
           # use component testing
           # component: true
+          # specify configuration values with config parameter
+          # config: pageLoadTimeout=100000,baseUrl=http://localhost:3000
         env:
           # pass the Cypress Cloud record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
