@@ -20,13 +20,21 @@ jobs:
         run: node -v
       
       - name: Cypress run
-        uses: cypress-io/github-action@v5.6.2
+        # best practices with specific version to mitigate unforeseen breaks
+        uses: cypress-io/github-action@v5.6.2 
         with:
-          build: npm run build # build appplication
-          start: npm start # start application
-          wait-on: 'http://localhost:4200' # wait until an app start
-          record: true # this will record on cypress cloud
+          # build appplication
+          build: npm run build 
+          # start application
+          start: npm start 
+          # wait until an app start
+          wait-on: 'http://localhost:4200' 
+          # this will record on cypress cloud
+          record: true 
+          # use component testing
+          component: true 
         env:
+          # cypress key
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # pass GitHub token to allow accurately detecting a build vs a re-run build
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
