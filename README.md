@@ -9,6 +9,5 @@ Documents:
 - Installing Cypress: https://docs.cypress.io/guides/getting-started/installing-cypress
 - Github Action Document: https://docs.cypress.io/guides/continuous-integration/github-actions
 - Online dashboard: https://cloud.cypress.io/
-- Npm CI: https://support.deploybot.com/article/131-why-developers-should-use-npm-ci-instead-of-npm-install-and-its-benefits#:~:text=npm%20ci%20is%20a%20command,json%20file.
 - Setup node: https://github.com/actions/setup-node
 - Example Cypress CICD: https://github.com/bahmutov/cypress-examples
