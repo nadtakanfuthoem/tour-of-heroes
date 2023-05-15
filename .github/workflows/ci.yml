@@ -20,7 +20,7 @@ jobs:
         run: node -v
       
       - name: Cypress install
-        uses: cypress-io/github-action@vv5.6.2 
+        uses: cypress-io/github-action@v5.6.2 
         with:
           # Disable running of tests within install job
           runTests: false
