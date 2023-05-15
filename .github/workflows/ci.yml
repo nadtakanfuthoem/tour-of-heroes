@@ -35,8 +35,6 @@ jobs:
           record: true
           # specify the browser, default is electron browser. Options: chrome, firefox, edge, electron
           browser: chrome 
-          # cancel the run after 2 failed tests
-          auto-cancel-after-failures: 2
           #  silence any Cypress specific output from stdout
           quiet: true
           # custom build id
@@ -47,6 +45,8 @@ jobs:
           # component: true
           # specify configuration values with config parameter
           # config: pageLoadTimeout=100000,baseUrl=http://localhost:3000
+          # cancel the run after 2 failed tests, only avalible on paid plan
+          # auto-cancel-after-failures: 2
         env:
           # pass the Cypress Cloud record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
