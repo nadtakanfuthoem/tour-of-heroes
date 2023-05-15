@@ -10,4 +10,5 @@ Documents:
 - Github Action Document: https://docs.cypress.io/guides/continuous-integration/github-actions
 - Online dashboard: https://cloud.cypress.io/
 - Setup node: https://github.com/actions/setup-node
-- Example Cypress CICD: https://github.com/bahmutov/cypress-examples
+- Example Cypress: https://github.com/bahmutov/cypress-examples
+- Website: https://glebbahmutov.com/cypress-examples/
