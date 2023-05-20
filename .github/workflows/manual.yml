@@ -4,44 +4,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-jobs:
-  cypress-install:
-    name: Cypress Install
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          # check out all commits to get accurate created date
-          fetch-depth: 0
-        
-      - name: Setup node version
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16 # This allow Github Workflow running on node 16
-
-      - name: Print Node version 
-        run: node -v
-      
-      - name: Cypress install
-        uses: cypress-io/github-action@v5.6.2 
-        with:
-          # Disable running of tests within install job
-          runTests: false
-          # build appplication
-          build: npm run build
-      
-#       - name: Save build folder
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: build
-#           if-no-files-found: error
-#           path: build
-          
+jobs:          
   cypress-run:
     name: Cypress run
     runs-on: ubuntu-latest
-    needs: cypress-install
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -53,38 +19,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16 # This allow Github Workflow running on node 16
-
-      - name: Print Node version 
-        run: node -v
-      
-#       - name: Download the build folder
-#         uses: actions/download-artifact@v3
-#         with:
-#           name: build
-#           path: build
       
       - name: Cypress run
         # *best practices with specific version to mitigate unforeseen breaks
         uses: cypress-io/github-action@v5.6.2 
         with:
-          # start server
-          start: npm start 
-          # wait until an app start, quote the url to be safe against YML parsing surprises
-          wait-on: 'http://localhost:4200' 
-          # wait for 2 minutes for the server to respond
-          wait-on-timeout: 120
-          # record test results on Cypress Cloud
-          record: true
-          # specify the browser, default is electron browser. Options: chrome, firefox, edge, electron
-          browser: chrome 
-          #  silence any Cypress specific output from stdout
-          quiet: true
-          # custom build id
-          ci-build-id: '${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}'
-        env:
-          # pass the Cypress Cloud record key as an environment variable
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # *best practices, pass GitHub token to allow accurately detecting a build vs a re-run build
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # pass the project ID from the secrets through environment variable
-          # CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          browser: chrome
