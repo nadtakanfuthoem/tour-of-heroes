@@ -1,0 +1,25 @@
+name: Manual Cypress Tests
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:          
+  cypress-run:
+    name: Cypress run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # This allow Github Workflow running on node 16
+      
+      - name: Cypress run
+        # *best practices with specific version to mitigate unforeseen breaks
+        uses: cypress-io/github-action@v5.6.2 
+        with:
+          browser: chrome
