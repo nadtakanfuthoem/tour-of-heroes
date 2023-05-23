@@ -1,4 +1,4 @@
-name: Manual Cypress Tests
+name: On Push Event
 
 on:
   push:
