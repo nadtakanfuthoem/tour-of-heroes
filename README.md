@@ -1,4 +1,4 @@
-# Example integration Cypress Github Action
+#### Example integration Cypress Github Action
 
 Steps:
 1. Sign up for your account on https://cloud.cypress.io/
