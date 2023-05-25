@@ -3,11 +3,18 @@ name: Manual Cypress Tests
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        options:
+          - QA
+          - TEST
 
 jobs:          
   cypress-run:
     name: Cypress run
-    environment: QA
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
