@@ -30,7 +30,7 @@ jobs:
         uses: cypress-io/github-action@v5.6.2 
         with:
           browser: chrome
-          config: defaultCommandTimeout=60000,baseUrl=${{vars.url}}
+          config: defaultCommandTimeout=60000,baseUrl=${{ vars.url }}
           record: true
         env:
           # pass the Cypress Cloud record key as an environment variable
