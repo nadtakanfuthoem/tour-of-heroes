@@ -23,6 +23,7 @@ jobs:
         uses: cypress-io/github-action@v5.6.2 
         with:
           browser: chrome
+          record: true
         env:
           # pass the Cypress Cloud record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
