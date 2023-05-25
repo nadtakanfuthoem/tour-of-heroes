@@ -7,6 +7,7 @@ on:
 jobs:          
   cypress-run:
     name: Cypress run
+    environment: QA
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
