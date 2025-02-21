@@ -6,8 +6,6 @@ on:
       - Cypress Tests
     types:
       - completed
-    branches: 
-      - dev
 
 jobs:
   deploy:
