@@ -1,7 +1,10 @@
-name: Run SonarQube Analysis
+name: Deploy Test
 
 on:
-  workflow_dispatch:
+  pull_request:
+  push:
+    branches: 
+      - test
 
 jobs:
   build:
@@ -11,3 +14,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # This allow Github Workflow running on node 16
+
+      - name: Print Node version 
+        run: node -v
