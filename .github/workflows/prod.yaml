@@ -6,6 +6,8 @@ on:
       - Deploy Test
     types:
       - completed
+    branches:
+      - test
 
 jobs:
   deploy:
