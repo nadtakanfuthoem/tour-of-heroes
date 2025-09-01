@@ -35,15 +35,12 @@ jobs:
                 # Extract current major version
                 CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
                 
-                # Find the next LTS version above current
-                NEXT_LTS=$(echo "$LTS_VERSIONS" | jq -r --argjson current_major "$CURRENT_MAJOR" 'map(select((split(".")[0] | tonumber) > $current_major)) | first')
+                # Find all LTS versions above current
+                UPGRADE_PATH=$(echo "$LTS_VERSIONS" | jq -r --argjson current_major "$CURRENT_MAJOR" 'map(select((split(".")[0] | tonumber) > $current_major)) | unique | @sh')
                 
-                if [ "$NEXT_LTS" != "null" ] && [ -n "$NEXT_LTS" ]; then
-                  NEXT_MAJOR=$(echo $NEXT_LTS | cut -d. -f1)
-                  echo "Next Angular LTS version: $NEXT_LTS"
+                if [ -n "$UPGRADE_PATH" ] && [ "$UPGRADE_PATH" != "''" ]; then
                   echo "update_available=true" >> $GITHUB_OUTPUT
-                  echo "latest_lts=$NEXT_LTS" >> $GITHUB_OUTPUT
-                  echo "latest_lts_major=$NEXT_MAJOR" >> $GITHUB_OUTPUT
+                  echo "upgrade_path=$UPGRADE_PATH" >> $GITHUB_OUTPUT
                 else
                   echo "No new LTS version available"
                   echo "update_available=false" >> $GITHUB_OUTPUT
@@ -54,39 +51,47 @@ jobs:
               run: |
                 git config --global user.name 'GitHub Actions Bot'
                 git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                git checkout -b update/angular-${{ steps.check-lts.outputs.latest_lts_major }}
+                git checkout -b update/angular-multi-lts
         
             - name: Update Angular
               if: steps.check-lts.outputs.update_available == 'true'
               run: |
-                npx @angular/cli@${{ steps.check-lts.outputs.latest_lts_major }} update @angular/core@${{ steps.check-lts.outputs.latest_lts_major }} @angular/cli@${{ steps.check-lts.outputs.latest_lts_major }} --force
-                npx @angular/cli@${{ steps.check-lts.outputs.latest_lts_major }} update @angular/material@${{ steps.check-lts.outputs.latest_lts_major }} --force
+                set -e
+                # Parse upgrade path into array
+                eval "LTS_VERSIONS=(${{ steps.check-lts.outputs.upgrade_path }})"
+                for NEXT_LTS in "${LTS_VERSIONS[@]}"; do
+                  NEXT_MAJOR=$(echo $NEXT_LTS | cut -d. -f1)
+                  echo "\n--- Upgrading to Angular $NEXT_LTS (major $NEXT_MAJOR) ---\n"
+                  npx @angular/cli@$NEXT_MAJOR update @angular/core@$NEXT_MAJOR @angular/cli@$NEXT_MAJOR --force
+                  npx @angular/cli@$NEXT_MAJOR update @angular/material@$NEXT_MAJOR --force || true
+                  npm install
+                  npm test -- --watch=false --browsers=ChromeHeadless
+                  git add .
+                  git commit -m "Update Angular to LTS version $NEXT_LTS"
+                done
+                git push --set-upstream origin update/angular-multi-lts
                 
             - name: Run tests
-              if: steps.check-lts.outputs.update_available == 'true'
-              run: npm test -- --watch=false --browsers=ChromeHeadless
+              if: false  # Tests are now run after each upgrade step
+              run: echo "Tests run in upgrade loop"
                 
             - name: Commit changes
-              if: steps.check-lts.outputs.update_available == 'true'
-              run: |
-                git add .
-                git commit -m "Update Angular to LTS version ${{ steps.check-lts.outputs.latest_lts_major }}"
-                git push --set-upstream origin update/angular-${{ steps.check-lts.outputs.latest_lts_major }}
+              if: false  # Commits are now handled in the upgrade loop
+              run: echo "Commits handled in upgrade loop"
                 
             - name: Create Pull Request
               if: steps.check-lts.outputs.update_available == 'true'
               uses: peter-evans/create-pull-request@v5
               with:
-                title: "Update Angular to LTS version ${{ steps.check-lts.outputs.latest_lts_major }}"
+                title: "Update Angular to latest LTS versions"
                 body: |
-                    This PR updates Angular to the latest LTS version ${{ steps.check-lts.outputs.latest_lts_major }}.
+                    This PR updates Angular through all available LTS versions above the current.
                     
                     ## Changes
-                    - Updated @angular/core to v${{ steps.check-lts.outputs.latest_lts }}
-                    - Updated @angular/cli to v${{ steps.check-lts.outputs.latest_lts_major }}
-                    - Updated other Angular dependencies
+                    - Updated @angular/core, @angular/cli, and @angular/material through all LTS versions
+                    - Ran tests after each upgrade step
                     
                     Please review the changes carefully and test the application before merging.
-                branch: update/angular-${{ steps.check-lts.outputs.latest_lts_major }}
+                branch: update/angular-multi-lts
                 base: main
                 labels: "dependencies,angular-update"
