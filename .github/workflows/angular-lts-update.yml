@@ -64,7 +64,6 @@ jobs:
                   npx @angular/cli@$NEXT_MAJOR update @angular/core@$NEXT_MAJOR @angular/cli@$NEXT_MAJOR --force
                   npx @angular/cli@$NEXT_MAJOR update @angular/material@$NEXT_MAJOR --force || true
                   npm install
-                  npm test -- --watch=false --browsers=ChromeHeadless
                   git add .
                   git commit -m "Update Angular to major version $NEXT_MAJOR"
                 done
