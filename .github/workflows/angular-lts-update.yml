@@ -29,20 +29,20 @@ jobs:
                 CURRENT_VERSION=$(node -e "console.log(require('./package.json').dependencies['@angular/core'])" | sed 's/[^0-9.]//g')
                 echo "Current Angular version: $CURRENT_VERSION"
                 
-                # Get all LTS versions (even major numbers)
-                LTS_VERSIONS=$(npm view @angular/core versions --json | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | select(split(".")[0] | tonumber % 2 == 0)) | sort_by(split(".") | map(tonumber))')
+                # Get all available versions
+                ALL_VERSIONS=$(npm view @angular/core versions --json | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))) | sort_by(split(".") | map(tonumber))')
                 
                 # Extract current major version
                 CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
                 
-                # Find all LTS versions above current
-                UPGRADE_PATH=$(echo "$LTS_VERSIONS" | jq -r --argjson current_major "$CURRENT_MAJOR" 'map(select((split(".")[0] | tonumber) > $current_major)) | unique | @sh')
+                # Find all unique major versions above current
+                MAJOR_UPGRADE_PATH=$(echo "$ALL_VERSIONS" | jq -r --argjson current_major "$CURRENT_MAJOR" 'map(split(".")[0] | tonumber) | unique | map(select(. > $current_major)) | @sh')
                 
-                if [ -n "$UPGRADE_PATH" ] && [ "$UPGRADE_PATH" != "''" ]; then
+                if [ -n "$MAJOR_UPGRADE_PATH" ] && [ "$MAJOR_UPGRADE_PATH" != "''" ]; then
                   echo "update_available=true" >> $GITHUB_OUTPUT
-                  echo "upgrade_path=$UPGRADE_PATH" >> $GITHUB_OUTPUT
+                  echo "major_upgrade_path=$MAJOR_UPGRADE_PATH" >> $GITHUB_OUTPUT
                 else
-                  echo "No new LTS version available"
+                  echo "No new major version available"
                   echo "update_available=false" >> $GITHUB_OUTPUT
                 fi
 
@@ -57,17 +57,16 @@ jobs:
               if: steps.check-lts.outputs.update_available == 'true'
               run: |
                 set -e
-                # Parse upgrade path into array
-                eval "LTS_VERSIONS=(${{ steps.check-lts.outputs.upgrade_path }})"
-                for NEXT_LTS in "${LTS_VERSIONS[@]}"; do
-                  NEXT_MAJOR=$(echo $NEXT_LTS | cut -d. -f1)
-                  echo "\n--- Upgrading to Angular $NEXT_LTS (major $NEXT_MAJOR) ---\n"
+                # Parse major upgrade path into array
+                eval "MAJORS=(${{ steps.check-lts.outputs.major_upgrade_path }})"
+                for NEXT_MAJOR in "${MAJORS[@]}"; do
+                  echo "\n--- Upgrading to Angular major $NEXT_MAJOR ---\n"
                   npx @angular/cli@$NEXT_MAJOR update @angular/core@$NEXT_MAJOR @angular/cli@$NEXT_MAJOR --force
                   npx @angular/cli@$NEXT_MAJOR update @angular/material@$NEXT_MAJOR --force || true
                   npm install
                   npm test -- --watch=false --browsers=ChromeHeadless
                   git add .
-                  git commit -m "Update Angular to LTS version $NEXT_LTS"
+                  git commit -m "Update Angular to major version $NEXT_MAJOR"
                 done
                 git push --set-upstream origin update/angular-multi-lts
                 
