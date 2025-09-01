@@ -25,28 +25,29 @@ jobs:
             - name: Check for new Angular LTS
               id: check-lts
               run: |
-                    # Get current Angular version from package.json
-                    CURRENT_VERSION=$(node -e "console.log(require('./package.json').dependencies['@angular/core'])" | sed 's/[^0-9.]//g')
-                    echo "Current Angular version: $CURRENT_VERSION"
-                    
-                    # Get latest LTS version (Angular publishes even-numbered versions as LTS)
-                    LATEST_LTS=$(npm view @angular/core versions --json | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | select(split(".")[0] | tonumber % 2 == 0)) | sort_by(split(".") | map(tonumber)) | last')
-                    echo "Latest Angular LTS version: $LATEST_LTS"
-                    
-                    # Extract major versions for comparison
-                    CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
-                    LATEST_MAJOR=$(echo $LATEST_LTS | cut -d. -f1)
-                    
-                    # Check if new LTS is available
-                    if [ $LATEST_MAJOR -gt $CURRENT_MAJOR ]; then
-                        echo "New Angular LTS version available!"
-                        echo "update_available=true" >> $GITHUB_OUTPUT
-                        echo "latest_lts=$LATEST_LTS" >> $GITHUB_OUTPUT
-                        echo "latest_lts_major=$LATEST_MAJOR" >> $GITHUB_OUTPUT
-                    else
-                        echo "No new LTS version available"
-                        echo "update_available=false" >> $GITHUB_OUTPUT
-                    fi
+                # Get current Angular version from package.json
+                CURRENT_VERSION=$(node -e "console.log(require('./package.json').dependencies['@angular/core'])" | sed 's/[^0-9.]//g')
+                echo "Current Angular version: $CURRENT_VERSION"
+                
+                # Get all LTS versions (even major numbers)
+                LTS_VERSIONS=$(npm view @angular/core versions --json | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | select(split(".")[0] | tonumber % 2 == 0)) | sort_by(split(".") | map(tonumber))')
+                
+                # Extract current major version
+                CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
+                
+                # Find the next LTS version above current
+                NEXT_LTS=$(echo "$LTS_VERSIONS" | jq -r --argjson current_major "$CURRENT_MAJOR" 'map(select((split(".")[0] | tonumber) > $current_major)) | first')
+                
+                if [ "$NEXT_LTS" != "null" ] && [ -n "$NEXT_LTS" ]; then
+                  NEXT_MAJOR=$(echo $NEXT_LTS | cut -d. -f1)
+                  echo "Next Angular LTS version: $NEXT_LTS"
+                  echo "update_available=true" >> $GITHUB_OUTPUT
+                  echo "latest_lts=$NEXT_LTS" >> $GITHUB_OUTPUT
+                  echo "latest_lts_major=$NEXT_MAJOR" >> $GITHUB_OUTPUT
+                else
+                  echo "No new LTS version available"
+                  echo "update_available=false" >> $GITHUB_OUTPUT
+                fi
 
             - name: Create update branch
               if: steps.check-lts.outputs.update_available == 'true'
