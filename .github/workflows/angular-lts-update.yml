@@ -1,0 +1,91 @@
+name: Angular LTS Update
+
+on:
+    schedule:
+        - cron: '0 0 * * 0'
+    workflow_dispatch:
+
+jobs:
+    check-and-update:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Check for new Angular LTS
+              id: check-lts
+              run: |
+                    # Get current Angular version from package.json
+                    CURRENT_VERSION=$(node -e "console.log(require('./package.json').dependencies['@angular/core'])" | sed 's/[^0-9.]//g')
+                    echo "Current Angular version: $CURRENT_VERSION"
+                    
+                    # Get latest LTS version (Angular publishes even-numbered versions as LTS)
+                    LATEST_LTS=$(npm view @angular/core versions --json | jq -r 'map(select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | select(split(".")[0] | tonumber % 2 == 0)) | sort_by(split(".") | map(tonumber)) | last')
+                    echo "Latest Angular LTS version: $LATEST_LTS"
+                    
+                    # Extract major versions for comparison
+                    CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
+                    LATEST_MAJOR=$(echo $LATEST_LTS | cut -d. -f1)
+                    
+                    # Check if new LTS is available
+                    if [ $LATEST_MAJOR -gt $CURRENT_MAJOR ]; then
+                        echo "New Angular LTS version available!"
+                        echo "update_available=true" >> $GITHUB_OUTPUT
+                        echo "latest_lts=$LATEST_LTS" >> $GITHUB_OUTPUT
+                        echo "latest_lts_major=$LATEST_MAJOR" >> $GITHUB_OUTPUT
+                    else
+                        echo "No new LTS version available"
+                        echo "update_available=false" >> $GITHUB_OUTPUT
+                    fi
+
+            - name: Create update branch
+              if: steps.check-lts.outputs.update_available == 'true'
+              run: |
+                git config --global user.name 'GitHub Actions Bot'
+                git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                git checkout -b update/angular-${{ steps.check-lts.outputs.latest_lts_major }}
+        
+            - name: Update Angular
+              if: steps.check-lts.outputs.update_available == 'true'
+              run: |
+                npx @angular/cli@${{ steps.check-lts.outputs.latest_lts_major }} update @angular/core@${{ steps.check-lts.outputs.latest_lts_major }} @angular/cli@${{ steps.check-lts.outputs.latest_lts_major }} --force
+                npx @angular/cli@${{ steps.check-lts.outputs.latest_lts_major }} update @angular/material@${{ steps.check-lts.outputs.latest_lts_major }} --force
+                
+            - name: Run tests
+              if: steps.check-lts.outputs.update_available == 'true'
+              run: npm test -- --watch=false --browsers=ChromeHeadless
+                
+            - name: Commit changes
+              if: steps.check-lts.outputs.update_available == 'true'
+              run: |
+                git add .
+                git commit -m "Update Angular to LTS version ${{ steps.check-lts.outputs.latest_lts_major }}"
+                git push --set-upstream origin update/angular-${{ steps.check-lts.outputs.latest_lts_major }}
+                
+            - name: Create Pull Request
+              if: steps.check-lts.outputs.update_available == 'true'
+              uses: peter-evans/create-pull-request@v5
+              with:
+                title: "Update Angular to LTS version ${{ steps.check-lts.outputs.latest_lts_major }}"
+                body: |
+                    This PR updates Angular to the latest LTS version ${{ steps.check-lts.outputs.latest_lts_major }}.
+                    
+                    ## Changes
+                    - Updated @angular/core to v${{ steps.check-lts.outputs.latest_lts }}
+                    - Updated @angular/cli to v${{ steps.check-lts.outputs.latest_lts_major }}
+                    - Updated other Angular dependencies
+                    
+                    Please review the changes carefully and test the application before merging.
+                branch: update/angular-${{ steps.check-lts.outputs.latest_lts_major }}
+                base: main
+                labels: "dependencies,angular-update"
